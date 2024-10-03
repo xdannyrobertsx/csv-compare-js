@@ -5,8 +5,14 @@ import { createApp } from "vue";
 import PrimeVue from "primevue/config";
 import { definePreset } from '@primevue/themes';
 import Lara from "@primevue/themes/lara";
-import Button from "primevue/button";
+
+
+import DataTable from 'primevue/datatable';
 import FileUpload from "primevue/fileupload";
+import Card from 'primevue/card'
+import Select from 'primevue/Select';
+import Button from 'primevue/button';
+
 import App from "./App.vue";
 
 const CustomColors = definePreset(Lara, {
@@ -37,5 +43,8 @@ app.use(PrimeVue, {
 
 app.component("Button", Button);
 app.component("FileUpload", FileUpload);
+app.component('Card', Card);
+app.component('Select', Select);
+app.component('DataTable', DataTable);
 
 app.mount("#app");

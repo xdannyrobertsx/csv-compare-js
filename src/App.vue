@@ -1,59 +1,147 @@
 <template>
-  <div class="main">
-    <Button as="a" href="https://github.com/xdannyrobertsx/csv-compare-js" target="_blank" rel="noopener" icon="pi pi-github" rounded severity="secondary" style="text-decoration: none" />
-    <div v-if="comparisonResult">
-      <!-- Display the comparison result here -->
+  <div class="app">
+    <div v-if="!comparisonResult">
+      <FileUpload @submit="handleFileSubmit" />
+      <div v-if="headers.length > 0" class="header-selection">
+        <label for="header-select">Select comparison header:</label>
+        <select id="header-select" v-model="selectedHeader">
+          <option v-for="header in headers" :key="header" :value="header">
+            {{ header }}
+          </option>
+        </select>
+        <button @click="compareFiles" :disabled="!selectedHeader || files.length !== 2">
+          Compare Files
+        </button>
+      </div>
     </div>
-    <FileUpload v-else :isCalculating @submit="compareFiles" />
+    <div v-else-if="error" class="error-message">
+      {{ error }}
+    </div>
+    <Card v-else>
+      <template #title>
+        Comparison Results
+      </template>
+      <template #content>
+        <ComparisonTable :comparisonData="comparisonResult" />
+      </template>
+      <template #footer>
+        <Button @click="resetComparison" label="Compare New Files" />
+      </template>
+    </Card>
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from "vue";
-import { invoke } from '@tauri-apps/api/core';
-import FileUpload from "./components/FileUpload.vue";
+<script>
+import { ref } from 'vue'
+import { invoke } from "@tauri-apps/api/core";
+import FileUpload from './components/FileUpload.vue'
+import ComparisonTable from './components/ComparisonTable.vue'
 
-const isCalculating = computed(() => {
-  return false;
-});
+export default {
+  name: 'App',
+  components: {
+    FileUpload,
+    ComparisonTable
+  },
+  setup() {
+    const files = ref([])
+    const headers = ref([])
+    const selectedHeader = ref('')
+    const comparisonResult = ref(null)
+    const error = ref(null)
 
-const files = ref([]);
-const comparisonResult = ref(null);
+    const handleFileSubmit = async (selectedFiles) => {
+      files.value = selectedFiles
+      if (files.value.length > 0) {
+        const content = await readFileContent(files.value[0])
+        headers.value = getHeadersFromCSV(content)
+      }
+    }
 
-const compareFiles = async (e) => {
-  files.value = e;
-  const fileContents = await Promise.all(
-    Array.from(files.value).map(file => readFileContent(file))
-  );
+    const getHeadersFromCSV = (content) => {
+      const lines = content.split('\n')
+      if (lines.length > 0) {
+        return lines[0].split(',').map(header => header.trim())
+      }
+      return []
+    }
 
-  try {
-    comparisonResult.value = await invoke('compare_csv_contents', {
-      file1Content: fileContents[0],
-      file2Content: fileContents[1]
-    });
-    // Handle the comparison result here
-    console.log("✨", comparisonResult.value);
-  } catch (error) {
-    console.error('Error comparing files:', error);
+    const compareFiles = async () => {
+      if (files.value.length !== 2 || !selectedHeader.value) return
+
+      error.value = null
+      comparisonResult.value = null
+
+      const content1 = await readFileContent(files.value[0])
+      const content2 = await readFileContent(files.value[1])
+
+      try {
+        const result = await invoke('compare_csv_contents', { 
+          file1Content: content1,
+          file2Content: content2,
+          comparisonHeader: selectedHeader.value
+        })
+        
+        if (result && typeof result === 'object' && 'changed_rows' in result) {
+          comparisonResult.value = result
+        } else {
+          throw new Error('Unexpected result format from comparison')
+        }
+      } catch (err) {
+        error.value = `Error comparing files: ${err.message || 'Unknown error'}`
+      }
+    }
+
+    const readFileContent = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (event) => resolve(event.target.result)
+        reader.onerror = (error) => reject(error)
+        reader.readAsText(file)
+      })
+    }
+
+    const resetComparison = () => {
+      files.value = []
+      headers.value = []
+      selectedHeader.value = ''
+      comparisonResult.value = null
+      error.value = null
+    }
+
+    return {
+      files,
+      headers,
+      selectedHeader,
+      comparisonResult,
+      error,
+      handleFileSubmit,
+      compareFiles,
+      resetComparison
+    }
   }
-};
-
-  const readFileContent = (file) => {
-    return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = event => resolve(event.target.result);
-    reader.onerror = error => reject(error);
-    reader.readAsText(file);
-  });
-};
+}
 </script>
 
 <style scoped>
-.main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 90vh;
+.app {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header-selection {
+  margin-top: 20px;
+}
+
+button {
+  margin-top: 10px;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin: 20px 0;
 }
 </style>

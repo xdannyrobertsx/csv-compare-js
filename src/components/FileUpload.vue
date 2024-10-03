@@ -9,16 +9,17 @@
       :chooseButtonProps="{
         label: 'Select Files',
         iconPos: 'right',
-        disabled: shouldShowUpload,
         severity: 'contrast',
+        style: `display: ${shouldShowUpload ? 'none' : 'block'}`,
       }"
       :uploadButtonProps="{
-        label: 'Compare',
+        label: 'Choose Header',
         iconPos: 'left',
-        disabled: !shouldShowUpload,
         loading: isCalculating,
         severity: 'primary',
+        style: `display: ${shouldShowUpload ? 'block' : 'none'}`,
       }"
+      :pt="passThroughOptions"
       :disabled="isCalculating"
       :multiple="true"
       :maxFileSize="1000000"
@@ -26,7 +27,6 @@
       :customUpload="true"
       :showUploadButton="shouldShowUpload"
       :showCancelButton="shouldShowCancel"
-      :previewWidth="0"
     >
       <template #empty>
         <span>Drag and drop files to here to upload.</span>
@@ -34,11 +34,13 @@
       <template #chooseicon>
         <i
           :class="['pi', shouldShowUpload ? 'pi-folder' : 'pi-folder-open']"
+          style="padding-right: 8px"
         ></i>
       </template>
       <template #uploadicon>
         <i
-          :class="['pi', isCalculating ? 'pi-spinner-dotted' : 'pi-sparkles']"
+          :class="['pi', isCalculating ? 'pi-spinner-dotted' : 'pi-search']"
+          style="padding-right: 8px"
         ></i>
       </template>
     </FileUpload>
@@ -48,17 +50,32 @@
 <script setup>
 import { ref, computed } from "vue";
 
-
-const emit = defineEmits(['submit'])
+const emit = defineEmits(["submit"]);
 
 defineProps({
   isCalculating: {
     type: Boolean,
     default: false,
-  }
-})
+  },
+});
 
 const filesInQueue = ref(0);
+
+const passThroughOptions = {
+  header: {
+    style: {
+      "justify-content": "center",
+    },
+  },
+  fileThumbnail: {
+    style: {
+      display: "none",
+    },
+  },
+  root: {
+    class: "danny",
+  },
+};
 
 const calculateFilesInQueue = (uploadEvent) => {
   const { files } = uploadEvent;
@@ -69,7 +86,7 @@ const handleFiles = (uploadEvent) => {
   filesInQueue.value = 0;
 
   const { files } = uploadEvent;
-  emit('submit', files)
+  emit("submit", files);
 };
 
 const shouldShowUpload = computed(() => {

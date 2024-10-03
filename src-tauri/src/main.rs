@@ -3,12 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use csv_compare_js_lib::compare_csv_contents as lib_compare_csv_contents;
 use csv_compare_js_lib::ComparisonResult;
 
 #[tauri::command]
-fn compare_csv_contents(file1_content: String, file2_content: String) -> Result<ComparisonResult, String> {
-    lib_compare_csv_contents(file1_content, file2_content)
+fn compare_csv_contents(file1_content: String, file2_content: String, comparison_header: String) -> Result<ComparisonResult, String> {
+    csv_compare_js_lib::compare_csv_contents(file1_content, file2_content, comparison_header)
 }
 
 fn main() {
