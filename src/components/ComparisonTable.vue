@@ -63,8 +63,6 @@ export default {
   },
   methods: {
     processData(data) {
-      console.log('Received comparison data:', JSON.stringify(data, null, 2));
-      
       this.error = null;
       this.processedData = [];
       this.tableHeaders = [];
@@ -93,8 +91,6 @@ export default {
           this.tableHeaders = Object.keys(this.processedData[0]);
         }
 
-        console.log('Processed data:', this.processedData);
-        console.log('Table headers:', this.tableHeaders);
       } catch (err) {
         console.error('Error processing comparison data:', err);
         this.error = `Error processing comparison data: ${err.message}`;

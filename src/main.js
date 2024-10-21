@@ -44,7 +44,7 @@ app.use(PrimeVue, {
 app.component("Button", Button);
 app.component("FileUpload", FileUpload);
 app.component('Card', Card);
-app.component('Select', Select);
 app.component('DataTable', DataTable);
+app.component('Select', Select);
 
 app.mount("#app");
