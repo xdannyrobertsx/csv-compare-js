@@ -80,8 +80,10 @@ pub fn compare_csv_contents(
         .collect();
 
     // Read records into HashMaps keyed by the comparison header value
-    let records_map1 = build_records_map(&mut csv1, &header_indices1, &normalized_comparison_header)?;
-    let records_map2 = build_records_map(&mut csv2, &header_indices2, &normalized_comparison_header)?;
+    let records_map1 =
+        build_records_map(&mut csv1, &header_indices1, &normalized_comparison_header)?;
+    let records_map2 =
+        build_records_map(&mut csv2, &header_indices2, &normalized_comparison_header)?;
 
     let mut changed_rows = Vec::new();
     let mut added_rows = Vec::new();
