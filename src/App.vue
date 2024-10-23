@@ -3,12 +3,22 @@
     <div v-if="!comparisonResult">
       <FileUpload @submit="handleFileSubmit" />
       <div v-if="headers.length > 0" class="header-selection">
-        <Select v-model="selectedHeader" :options="headers" placeholder="Select comparison header" class="dropdown" />
-        <Select v-model="oldestFile" :options="files.map((f) => f.name)" placeholder="Select oldest file:" class="dropdown" />
+        <Select
+          v-model="selectedHeader"
+          :options="headers"
+          placeholder="Select comparison header"
+          class="dropdown"
+        />
+        <Select
+          v-model="oldestFile"
+          :options="files.map((f) => f.name)"
+          placeholder="Select oldest file:"
+          class="dropdown"
+        />
         <Button
           @click="compareFiles"
           :disabled="!selectedHeader || files.length !== 2"
-          label="Compare Files" 
+          label="Compare Files"
         />
       </div>
     </div>
@@ -80,7 +90,7 @@ const compareFiles = async () => {
       comparisonHeader: selectedHeader.value,
     });
 
-    if (result && typeof result === "object" && "changed_rows" in result) {
+    if (result && typeof result === "object") {
       comparisonResult.value = result;
     } else {
       throw new Error("Unexpected result format from comparison");
@@ -112,9 +122,9 @@ const resetComparison = () => {
 <style scoped>
 .main {
   font-family: Arial, sans-serif;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 50px;
 }
 
 .header-selection {
