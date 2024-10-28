@@ -107,7 +107,7 @@ export default {
   background-color: var(--surface-0);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .comparison-table table {

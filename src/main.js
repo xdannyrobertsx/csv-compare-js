@@ -10,7 +10,7 @@ import Lara from "@primevue/themes/lara";
 import DataTable from 'primevue/datatable';
 import FileUpload from "primevue/fileupload";
 import Card from 'primevue/card'
-import Select from 'primevue/Select';
+import Select from 'primevue/select';
 import Button from 'primevue/button';
 
 import App from "./App.vue";
